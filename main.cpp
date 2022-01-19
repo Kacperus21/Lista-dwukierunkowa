@@ -1,222 +1,225 @@
 #include <iostream>
-#include <list>
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
 #include <windows.h>
-#include<string>
-#include<fstream>
-using namespace std;
 
-list <int> lista; //utworzenie listy z podstawowy typem danych int
-int choice,ile,a;
 
-void wyswietl()
+typedef struct ListElement {
+    int data;
+    struct ListElement * previous;  //deklaracja struktury listy
+    struct ListElement * next;
+} ListElement_type;
+
+void push_front(ListElement_type **head, int number)
 {
-    ofstream zapis("lista_dwukierunkowa.txt");
-    cout<<endl;
-    cout<<" Lista: "<<endl;
-    cout<<"____________________________"<<endl;
 
-    for(list<int>::iterator i=lista.begin(); i!= lista.end(); ++i) //funkcja do wyswietlania listy i zapisywania do pliku
+    if(*head==NULL) { //tylko wtedy gdy lista jest pusta czyli dodajemy pierwszy element
+    	*head = (ListElement_type *)malloc(sizeof(ListElement_type)); //alokacja pamieci na liste o danym rozmiarze
+   		(*head)->data = number; //liczba z klawiatury                   // jesli element jest pierwszy zostaje "glowa"
+   		(*head)->previous=NULL; //poniewaz jest to pierwszy element nie ma elementu nastepnego ani poprzedniego
+    	(*head)->next = NULL;
+	} else {
+		ListElement_type *current;
+    	        current=(ListElement_type *)malloc(sizeof(ListElement_type));
+    	        current->data=number;
+    	        current->previous=NULL; //nadajemy null poprzednikowi wstawianego elementu poniewaz jest on teraz pierwszy
+    	        current->next=(*head);
+    	        (*head)->previous=current;
+    	        *head=current;
+	}
+
+}
+
+void push_back(ListElement_type **head, int number)
+{
+
+
+	if(*head==NULL) //tylko wtedy gdy lista jest pusta czyli dodajemy pierwszy element
+	{
+		*head = (ListElement_type *)malloc(sizeof(ListElement_type));//alokacja pamieci na liste o danym rozmiarze
+   		(*head)->data = number;
+   		(*head)->previous = NULL;
+    	(*head)->next = NULL;
+	}else
+	{
+		ListElement_type *current=*head; //wskaznik glowy rowna sie wskaznikowi bierzacego elementu
+
+
+	    while (current->next != NULL) { //dopóki nastepnik bierzacego elementu jest rózny od null
+	        current = current->next;    //Birzacy element rowna sie swojemu nastepnikowi
+	    }
+
+	    current->next = (ListElement_type *)malloc(sizeof(ListElement_type));
+	    current->next->data = number; //nadajemy liczbe z klawiatury
+	    current->next->previous=current;//ustawiamy poprzednik
+	    current->next->next = NULL;//ustawiamy jako nastepnik dodanego elementu null bo po nim juz nic nie ma
+	}
+
+
+
+}
+
+
+
+void pop_front(ListElement_type **head)
+{
+
+    if (*head!=NULL) {//jesli nie ma elementow w liscie
+    	if((*head)->next==NULL) {//jesli jest jeden element w liscie
+    		*head=NULL;
+		} else {
+			ListElement_type *pom;
+			pom=(*head)->next;//pom rowna sie nastepnik glowy
+   			free(*head);//zwolnienie glowy
+   			*head=pom;//nowa glowa rowna sie pom
+   	 		(*head)->previous=NULL;//poprzednik nowej glowy ustawiamy na null
+		}
+
+	}
+
+}
+
+void pop_back(ListElement_type **head) //wskaznik wskaznika
+{
+
+	if((*head)->next==NULL)//jezeli nastepnik glowy jest null
+	{
+		*head=NULL; //to przypisz wskaznikowi glowy null
+	}else
+	{
+		ListElement_type *current=*head;
+		while (current->next->next!= NULL) { //wykonuj dopóki nastepnik nastepnki bierzacego elementu jest rozny od null
+        current = current->next; //przypisz bierzacemu elementowi jego nastepnik
+    	}
+   		 free(current->next); //zwolnij nastepnik bierzacego
+   		 current->next=NULL;
+	}
+}
+
+void show(ListElement_type *head)
+{
+    printf(" ");
+    if(head==NULL) printf("Lista jest pusta");//jesli nie ma glowy
+    else
     {
-        cout<<*i<<" ";
-        zapis<<*i<<" ";
-
+        ListElement_type *current=head;
+        do {
+            printf("%i", current->data); //wypisz bierzacy element
+            printf(" ");
+            current = current->next; //wez za bierzacy element jego nastepnik
+        }while (current != NULL);  //petla wykonuje sie dopoki bierzacy element bedzie rozny od null
     }
-
-
-    cout<<endl;
-    cout<<"____________________________"<<endl<<endl;
-    zapis.close();
 }
-void push_front()
+void show_reverse(ListElement_type *head)
 {
-    int liczba;
-    cout<<"Podaj ile liczb chcesz dodac: ";
-    cin>>ile;
-    for(int i=0;i<ile;i++){
-        cout<<"Podaj jaka liczbe wstawic na poczatek listy: "; //funkcja dodajaca element na poczatek listy
-        cin>>liczba;
-        lista.push_front(liczba);
-    }
-
-    wyswietl();
-}
-
-void push_back()
-{
-    int liczba;
-    cout<<"Podaj ile liczb chcesz dodac: ";
-    cin>>ile;
-    for(int i=0;i<ile;i++)
-        {
-        cout<<"Podaj jaka liczbe wstawic na koniec listy: "; //funkcja dodajaca element na koniec listy
-        cin>>liczba;
-        lista.push_back(liczba);
-        }
-    wyswietl();
-}
-void pop_front()
-{
-    cout<<"Podaj ile liczb chcesz usunac z poczatku listy: ";
-    cin>>ile;
-    for(int i=0;i<ile;i++)                                       //funkcja usuwajaca pierwszy element listy
+    printf(" ");
+    if(head==NULL) printf("List is empty");
+    else
     {
-      lista.pop_front();
-    }
-
-    cout<<"Usunieto pierwszy element/elementy listy";
-    wyswietl();
-}
-void pop_back()
-{
-    cout<<"Podaj ile liczb chcesz usunac z konca listy: ";
-    cin>>ile;
-    for(int i=0;i<ile;i++)                                      //funkcja usuwajaca ostatni element listy
-    {
-      lista.pop_back();
-    }
-    cout<<"Usunieto ostatni element/element listy";
-    wyswietl();
-}
-void size()
-{
-    cout<<"Rozmiar listy(ile jest liczb w liscie): "<<lista.size()<<endl;     //funkcja zwracajaca rozmiar listy
-    wyswietl();
-}
-void clear()
-{
-    cout<<"Wyczyszczona lista";
-    lista.clear();                  //funkcja czyszczaca liste
-    wyswietl();
-}
-void unique()
-{
-    cout<<"Usunieto duplikaty z listy";
-    lista.unique();                     //funkcja usuwajaca duplikaty z listy
-    wyswietl();
-}
-void remove()
-{
-    int liczba;
-    cout<<"Usun z listy wszystkie liczby rowne: ";
-    cin>>liczba;                                        //funkcja usuwajaca konkretne liczby z listy
-    lista.remove(liczba);
-    wyswietl();
-}
-void sort()
-{
-    cout<<"Posortowano liste rosnaco";
-    lista.sort();                                      //funkcja sortujaca liste rosnaco
-    wyswietl();
-}
-void sortmal()
-{
-    cout<<"Posortowano liste malejaco";
-    lista.sort();
-    lista.reverse();                                //funkcja sortujaca liste malejaco
-    wyswietl();
-}
-void reverse()
-{
-    cout<<"Lista o odwroconej kolejnosci!";
-    lista.reverse();                                //funkcja odwracajaca liste
-    wyswietl();
-}
-void czyjest()
-{
-   int szukana, licznik=0;
-   bool jest=false;
-   cout << "Podaj liczbe: ";
-   cin >> szukana;
-   cout << "Pozycja: ";
-   for( list<int>::iterator i=lista.begin(); i!= lista.end(); ++i ) //funkcja sprawdzajaca pozycje zadanej liczby
-   {
-       licznik++;
-       if(*i == szukana)
-       {
-        jest=true;
-        cout << licznik<<" ";
-       }
-   }
-   if(jest==false)
-    {
-        cout<<"Nie ma podanej liczby w tablicy"<<endl;
-    }
-   cout<<endl<<endl;
-    wyswietl();
-}
-void ilejest()
-{
-    int szukana, licznik=0;
-    bool jest=false;
-    cout << "Podaj liczbe: ";
-    cin >> szukana;
-    for( list<int>::iterator i=lista.begin(); i!= lista.end(); ++i )
-       {
-           if (*i == szukana)                                       //funkcja sprawdzajaca ilosc wystapien zadanej liczby
-        {
-            jest=true;
-            licznik++;
+        ListElement_type *current=head;
+        while (current->next != NULL) {
+            current = current->next; //idziemy na koniec listy
         }
 
-       }
-       if(jest==false)
-    {
-        cout<<"Nie ma podanej liczby w tablicy"<<endl;
-    }else
-    {
-    cout << "Liczba " << szukana << " wystapila: " << licznik << " razy." << endl;
+
+        do {
+        	printf("%i", current->data);
+            printf(" ");
+            current = current->previous;
+		}while(current!=NULL);
+
     }
-
-    wyswietl();
 }
 
-void exit()
-{
-
-    cout<<"Koniec programu!";               //wyjscie z programu
-
-}
 
 int main()
 {
-while(choice!=14)
-{
-cout << "1.Dodaj element/elementy na poczatek listy"<<endl;
-cout << "2.Dodaj element/elementy na koniec listy"<<endl;
-cout << "3.Usun pierwszy element/element listy"<<endl;
-cout << "4.Usun ostatni element/element listy"<<endl;
-cout << "5.Pokaz rozmiar listy"<<endl;
-cout << "6.Wyczysc liste"<<endl;
-cout << "7.Usun duplikaty"<<endl;                       //MENU
-cout << "8.Usun wszystkie elementy rowne: "<<endl;
-cout << "9.Posortuj liste rosnaco"<<endl;
-cout << "10.Posortuj liste malejaco"<<endl;
-cout << "11.Odwroc liste"<<endl;
-cout << "12.Znajdz pozycje zadanej liczby"<<endl;
-cout << "13.Policz ile razy zadana liczba wystapila w liscie"<<endl;
-cout << "14.Wyjdz"<<endl;
-cout << "Wybor: ";
-cin >> choice;
-    switch (choice)
+    ListElement_type *head;
+    head = (ListElement_type *)malloc(sizeof(ListElement_type));
+    head=NULL;
+
+
+    int wybor;
+    int number;
+    int ile=0;
+    int i;
+    while(wybor!=0)
     {
-        case 1:  push_front(); break;
-        case 2:  push_back();  break;
-        case 3:  pop_front();  break;
-        case 4:  pop_back();   break;
-        case 5:  size();       break;
-        case 6:  clear();      break;               //Wywolywanie funkcji za pomoca menu
-        case 7:  unique();     break;
-        case 8:  remove();     break;
-        case 9:  sort();       break;
-        case 10: sortmal();    break;
-        case 11: reverse();    break;
-        case 12: czyjest();    break;
-        case 13: ilejest();    break;
-        case 14: exit();       break;
-        default:
-        cout<<"Podales nie poprawna liczbe podaj liczby z zakresu 1-12!"; //zabezpieczenie przed podana zla wartoscia przez uzytkownika
+
+    system("cls");
+    printf("\nAktualny stan listy: ");
+    show(head);
+
+    printf("Co chcesz zrobic?\n");
+    printf("1. Dodac element na poczatek listy\n");
+    printf("2. Dodac element na koniec listy\n");
+    printf("3. Usunac element z poczatku listy\n");
+    printf("4. Usunac element z konca listy\n");
+    printf("5. Wyswietl odwrocona liste\n");
+    printf("0. Zakonczyc program.\n");
+
+
+
+
+    scanf("%i", &wybor);
+
+    switch (wybor)
+    {
+    case 0:
+    	return 0;
+    	break;
+
+    case 1:
+        printf("Podaj ile liczb chcesz dodac");
+        scanf("%d", &ile);
+        for(i=0;i<ile;i++)
+            {
+            printf("Wpisz liczbe jaka chcesz dodac: ");
+            scanf("%i", &number);
+            push_front(&head, number);
+            }
+
         break;
+     case 2:
+        printf("Podaj ile liczb chcesz dodac");
+        scanf("%d", &ile);
+        for(i=0;i<ile;i++)
+            {
+            printf("Wpisz liczbe jaka chcesz dodac: ");
+            scanf("%i", &number);
+            push_back(&head, number);
+            }
+        break;
+    case 3:
+        printf("Podaj ile liczb chcesz dodac");
+        scanf("%d", &ile);
+        for(i=0;i<ile;i++)
+            {
+        pop_front(&head);
+            }
+        break;
+	case 4:
+	    printf("Podaj ile liczb chcesz dodac");
+        scanf("%d", &ile);
+        for(i=0;i<ile;i++)
+            {
+        pop_back(&head);
+            }
+        break;
+    case 5:
+        show_reverse(head);
+        break;
+    default:
+        printf("Podaj wlasciwa opcje.");
+        break;
+
     }
-}
+
+    }
+
+
     return 0;
 }
+
+
